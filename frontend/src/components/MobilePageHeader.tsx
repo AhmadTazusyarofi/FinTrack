@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sun, Moon, LogOut } from 'lucide-react'
+import { Sun, Moon, LogOut, UserCircle } from 'lucide-react'
 import { clearAuth, getStoredUser } from '../services/auth.service'
 import { useTheme } from '../contexts/ThemeContext'
+import { UserAvatar } from './UserAvatar'
 
 export function MobilePageHeader({ title }: { title: string }) {
   const navigate = useNavigate()
@@ -45,11 +46,8 @@ export function MobilePageHeader({ title }: { title: string }) {
 
         {/* Avatar + logout */}
         <div className="relative">
-          <button
-            onClick={() => setOpen(!open)}
-            className="w-9 h-9 rounded-full bg-[#004643] flex items-center justify-center"
-          >
-            <span className="text-[11px] font-extrabold text-[#f9bc60]">{initials}</span>
+          <button onClick={() => setOpen(!open)}>
+            <UserAvatar user={user} size="sm" />
           </button>
           {open && (
             <>
@@ -59,6 +57,13 @@ export function MobilePageHeader({ title }: { title: string }) {
                   <p className="text-xs font-bold text-[#001e1d] dark:text-white truncate">{user?.name}</p>
                   <p className="text-[10px] text-slate-400 font-semibold truncate mt-0.5">{user?.email}</p>
                 </div>
+                <button
+                  onClick={() => { setOpen(false); navigate('/profile') }}
+                  className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[#001e1d] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  <UserCircle className="w-4 h-4 text-slate-400" />
+                  Profil Saya
+                </button>
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[#e16162] hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
