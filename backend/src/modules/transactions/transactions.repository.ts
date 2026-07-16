@@ -91,21 +91,86 @@ export interface TxData {
 
 export async function insertTransaction(userId: string, data: TxData): Promise<TransactionRow> {
   const id = uuidv4()
-  await pool.query<ResultSetHeader>(
-    'INSERT INTO transactions (id, user_id, type, amount, note, date, category_id, account_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [id, userId, data.type, data.amount, data.description, data.date, data.categoryId, data.accountId]
-  )
+  const conn = await pool.getConnection()
+  try {
+    await conn.beginTransaction()
+    await conn.query<ResultSetHeader>(
+      'INSERT INTO transactions (id, user_id, type, amount, note, date, category_id, account_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [id, userId, data.type, data.amount, data.description, data.date, data.categoryId, data.accountId]
+    )
+    const delta = data.type === 'INCOME' ? data.amount : -data.amount
+    await conn.query<ResultSetHeader>(
+      'UPDATE accounts SET balance = balance + ? WHERE id = ? AND user_id = ?',
+      [delta, data.accountId, userId]
+    )
+    await conn.commit()
+  } catch (err) {
+    await conn.rollback()
+    throw err
+  } finally {
+    conn.release()
+  }
   return findTransactionById(id, userId) as Promise<TransactionRow>
 }
 
-export async function updateTransactionRow(id: string, userId: string, data: TxData): Promise<TransactionRow> {
-  await pool.query<ResultSetHeader>(
-    'UPDATE transactions SET type=?, amount=?, note=?, date=?, category_id=?, account_id=? WHERE id=? AND user_id=?',
-    [data.type, data.amount, data.description, data.date, data.categoryId, data.accountId, id, userId]
-  )
+export async function updateTransactionRow(
+  id: string,
+  userId: string,
+  data: TxData,
+  existing: TransactionRow
+): Promise<TransactionRow> {
+  const conn = await pool.getConnection()
+  try {
+    await conn.beginTransaction()
+    await conn.query<ResultSetHeader>(
+      'UPDATE transactions SET type=?, amount=?, note=?, date=?, category_id=?, account_id=? WHERE id=? AND user_id=?',
+      [data.type, data.amount, data.description, data.date, data.categoryId, data.accountId, id, userId]
+    )
+    // Reverse old transaction's effect on the old account
+    const oldDelta = existing.type === 'INCOME' ? -existing.amount : existing.amount
+    await conn.query<ResultSetHeader>(
+      'UPDATE accounts SET balance = balance + ? WHERE id = ? AND user_id = ?',
+      [oldDelta, existing.account_id, userId]
+    )
+    // Apply new transaction's effect on the new account
+    const newDelta = data.type === 'INCOME' ? data.amount : -data.amount
+    await conn.query<ResultSetHeader>(
+      'UPDATE accounts SET balance = balance + ? WHERE id = ? AND user_id = ?',
+      [newDelta, data.accountId, userId]
+    )
+    await conn.commit()
+  } catch (err) {
+    await conn.rollback()
+    throw err
+  } finally {
+    conn.release()
+  }
   return findTransactionById(id, userId) as Promise<TransactionRow>
 }
 
-export async function deleteTransactionRow(id: string, userId: string): Promise<void> {
-  await pool.query<ResultSetHeader>('DELETE FROM transactions WHERE id = ? AND user_id = ?', [id, userId])
+export async function deleteTransactionRow(
+  id: string,
+  userId: string,
+  existing: TransactionRow
+): Promise<void> {
+  const conn = await pool.getConnection()
+  try {
+    await conn.beginTransaction()
+    await conn.query<ResultSetHeader>(
+      'DELETE FROM transactions WHERE id = ? AND user_id = ?',
+      [id, userId]
+    )
+    // Reverse the deleted transaction's effect on account balance
+    const delta = existing.type === 'INCOME' ? -existing.amount : existing.amount
+    await conn.query<ResultSetHeader>(
+      'UPDATE accounts SET balance = balance + ? WHERE id = ? AND user_id = ?',
+      [delta, existing.account_id, userId]
+    )
+    await conn.commit()
+  } catch (err) {
+    await conn.rollback()
+    throw err
+  } finally {
+    conn.release()
+  }
 }

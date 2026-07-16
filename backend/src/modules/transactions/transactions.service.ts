@@ -17,11 +17,11 @@ export async function addTransaction(userId: string, data: TxData): Promise<Tran
 export async function editTransaction(id: string, userId: string, data: TxData): Promise<TransactionRow> {
   const existing = await findTransactionById(id, userId)
   if (!existing) throw new Error('Transaksi tidak ditemukan')
-  return updateTransactionRow(id, userId, data)
+  return updateTransactionRow(id, userId, data, existing)
 }
 
 export async function removeTransaction(id: string, userId: string): Promise<void> {
   const existing = await findTransactionById(id, userId)
   if (!existing) throw new Error('Transaksi tidak ditemukan')
-  return deleteTransactionRow(id, userId)
+  return deleteTransactionRow(id, userId, existing)
 }
