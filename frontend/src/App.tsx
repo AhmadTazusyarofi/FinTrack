@@ -5,6 +5,9 @@ import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { TransactionsPage } from './pages/transactions/TransactionsPage'
 import { IncomePage } from './pages/income/IncomePage'
 import { ExpensesPage } from './pages/expenses/ExpensesPage'
+import { ProfilePage } from './pages/profile/ProfilePage'
+import { CategoriesPage } from './pages/settings/CategoriesPage'
+import { AccountsPage } from './pages/settings/AccountsPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 
@@ -24,6 +27,9 @@ function App() {
             <Route path="/transactions" element={<TransactionsPage />} />
             <Route path="/income" element={<IncomePage />} />
             <Route path="/expenses" element={<ExpensesPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings/categories" element={<CategoriesPage />} />
+            <Route path="/settings/accounts" element={<AccountsPage />} />
           </Route>
         </Route>
 
