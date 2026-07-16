@@ -2,8 +2,9 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowUpRight, ArrowDownLeft, ArrowRight,
-  Sun, Moon, LogOut,
+  Sun, Moon, LogOut, UserCircle,
 } from 'lucide-react'
+import { UserAvatar } from '../../components/UserAvatar'
 import { useTheme } from '../../contexts/ThemeContext'
 import {
   ResponsiveContainer,
@@ -95,11 +96,8 @@ export function DashboardPage() {
             }
           </button>
           <div className="relative">
-            <button
-              onClick={() => setAvatarOpen(!avatarOpen)}
-              className="w-10 h-10 rounded-full bg-[#004643] flex items-center justify-center ring-2 ring-[#004643]/20"
-            >
-              <span className="text-[11px] font-extrabold text-[#f9bc60]">{initials}</span>
+            <button onClick={() => setAvatarOpen(!avatarOpen)}>
+              <UserAvatar user={user} size="md" />
             </button>
             {avatarOpen && (
               <>
@@ -110,8 +108,15 @@ export function DashboardPage() {
                     <p className="text-[10px] text-slate-400 font-semibold truncate mt-0.5">{user?.email}</p>
                   </div>
                   <button
+                    onClick={() => { setAvatarOpen(false); navigate('/profile') }}
+                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[#001e1d] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                  >
+                    <UserCircle className="w-4 h-4 text-slate-400" />
+                    Profil Saya
+                  </button>
+                  <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[#e16162] hover:bg-red-50 transition-colors"
+                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[#e16162] hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                     Keluar
