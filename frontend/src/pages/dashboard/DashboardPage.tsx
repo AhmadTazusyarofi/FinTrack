@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowUpRight, ArrowDownLeft, ArrowRight,
-  Sun, Moon, LogOut, UserCircle,
+  Sun, Moon, LogOut, UserCircle, HandCoins,
 } from 'lucide-react'
 import { UserAvatar } from '../../components/UserAvatar'
 import { useTheme } from '../../contexts/ThemeContext'
@@ -15,10 +15,11 @@ import {
   CartesianGrid,
   Tooltip,
 } from 'recharts'
-import { ReportSummary, BudgetWithSpending, MonthlyChartEntry } from '../../types'
+import { ReportSummary, BudgetWithSpending, MonthlyChartEntry, Debt } from '../../types'
 import { getReportSummary } from '../../services/reportService'
 import { getBudgets } from '../../services/budgetService'
 import { getAccounts } from '../../services/accountService'
+import { getDebts } from '../../services/debtService'
 import { getStoredUser, clearAuth } from '../../services/auth.service'
 
 const formatCurrency = (value: number) =>
@@ -35,13 +36,10 @@ export function DashboardPage() {
   const [totalBalance, setTotalBalance] = useState(0)
   const [loading, setLoading] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)
+  const [debtSummary, setDebtSummary] = useState<{ totalPayable: number; totalReceivable: number } | null>(null)
 
   const { isDark, toggleTheme } = useTheme()
   const user = getStoredUser()
-  const initials = user?.name
-    ? user.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()
-    : 'U'
-
   function handleLogout() {
     clearAuth()
     navigate('/auth/login', { replace: true })
@@ -53,10 +51,16 @@ export function DashboardPage() {
       getReportSummary(month, year),
       getBudgets(month, year),
       getAccounts(),
-    ]).then(([rep, budgetList, accounts]) => {
+      getDebts(),
+    ]).then(([rep, budgetList, accounts, debts]) => {
       setReport(rep)
       setBudgets(budgetList)
       setTotalBalance(accounts.reduce((s, a) => s + a.balance, 0))
+      const active = (debts as Debt[]).filter(d => d.status === 'ACTIVE')
+      setDebtSummary({
+        totalPayable:    active.filter(d => d.type === 'PAYABLE').reduce((s, d) => s + (d.amount - d.paidAmount), 0),
+        totalReceivable: active.filter(d => d.type === 'RECEIVABLE').reduce((s, d) => s + (d.amount - d.paidAmount), 0),
+      })
     }).catch(() => {}).finally(() => setLoading(false))
   }, [month, year])
 
@@ -113,6 +117,13 @@ export function DashboardPage() {
                   >
                     <UserCircle className="w-4 h-4 text-slate-400" />
                     Profil Saya
+                  </button>
+                  <button
+                    onClick={() => { setAvatarOpen(false); navigate('/debts') }}
+                    className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[#001e1d] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                  >
+                    <HandCoins className="w-4 h-4 text-slate-400" />
+                    Hutang & Piutang
                   </button>
                   <button
                     onClick={handleLogout}
@@ -187,6 +198,44 @@ export function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* ── Hutang & Piutang Widget ── */}
+      {!loading && debtSummary && (debtSummary.totalPayable > 0 || debtSummary.totalReceivable > 0) && (
+        <div className="px-5 mb-6">
+          <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <HandCoins className="w-4 h-4 text-[#004643]" />
+                <p className="text-xs font-bold text-[#001e1d] dark:text-white">Hutang & Piutang</p>
+              </div>
+              <button
+                onClick={() => navigate('/debts')}
+                className="text-[10px] font-bold text-[#004643] flex items-center gap-0.5"
+              >
+                Lihat Semua <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {debtSummary.totalPayable > 0 && (
+                <div className="bg-red-50 dark:bg-red-500/10 rounded-xl p-3">
+                  <p className="text-[10px] text-slate-400 font-semibold mb-1">Hutang Aktif</p>
+                  <p className="text-xs font-extrabold text-red-500">
+                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(debtSummary.totalPayable)}
+                  </p>
+                </div>
+              )}
+              {debtSummary.totalReceivable > 0 && (
+                <div className="bg-amber-50 dark:bg-amber-500/10 rounded-xl p-3">
+                  <p className="text-[10px] text-slate-400 font-semibold mb-1">Piutang Aktif</p>
+                  <p className="text-xs font-extrabold text-amber-500">
+                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(debtSummary.totalReceivable)}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Budget progress (if any) ── */}
       {!loading && budgets.length > 0 && (

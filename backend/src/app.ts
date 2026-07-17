@@ -9,6 +9,7 @@ import accountRouter from './modules/accounts/accounts.routes'
 import transactionRouter from './modules/transactions/transactions.routes'
 import budgetRouter  from './modules/budgets/budgets.routes'
 import reportRouter  from './modules/reports/reports.routes'
+import debtRouter    from './modules/debts/debts.routes'
 
 dotenv.config()
 
@@ -31,6 +32,7 @@ app.use('/api/accounts', accountRouter)
 app.use('/api/transactions', transactionRouter)
 app.use('/api/budgets', budgetRouter)
 app.use('/api/reports', reportRouter)
+app.use('/api/debts',   debtRouter)
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`)

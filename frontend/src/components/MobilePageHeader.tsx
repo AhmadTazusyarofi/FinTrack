@@ -11,10 +11,6 @@ export function MobilePageHeader({ title }: { title: string }) {
   const user = getStoredUser()
   const { isDark, toggleTheme } = useTheme()
 
-  const initials = user?.name
-    ? user.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()
-    : 'U'
-
   function handleLogout() {
     clearAuth()
     navigate('/auth/login', { replace: true })

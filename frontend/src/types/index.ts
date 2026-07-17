@@ -91,3 +91,33 @@ export interface ReportSummary {
   monthlyChart: MonthlyChartEntry[]
   recentTransactions: Transaction[]
 }
+
+export type DebtType = 'PAYABLE' | 'RECEIVABLE'
+export type DebtStatus = 'ACTIVE' | 'SETTLED'
+
+export interface DebtPayment {
+  id: string
+  debtId: string
+  accountId: string
+  accountName: string
+  transactionId: string | null
+  amount: number
+  date: string
+  note: string | null
+  createdAt: string
+}
+
+export interface Debt {
+  id: string
+  userId: string
+  type: DebtType
+  personName: string
+  amount: number
+  paidAmount: number
+  dueDate: string | null
+  note: string | null
+  status: DebtStatus
+  createdAt: string
+  updatedAt: string
+  payments?: DebtPayment[]
+}

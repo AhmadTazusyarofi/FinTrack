@@ -8,6 +8,7 @@ import { ExpensesPage } from './pages/expenses/ExpensesPage'
 import { ProfilePage } from './pages/profile/ProfilePage'
 import { CategoriesPage } from './pages/settings/CategoriesPage'
 import { AccountsPage } from './pages/settings/AccountsPage'
+import { DebtsPage } from './pages/debts/DebtsPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 
@@ -30,6 +31,7 @@ function App() {
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings/categories" element={<CategoriesPage />} />
             <Route path="/settings/accounts" element={<AccountsPage />} />
+            <Route path="/debts" element={<DebtsPage />} />
           </Route>
         </Route>
 
