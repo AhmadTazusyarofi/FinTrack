@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Sun, Moon, LogOut, UserCircle } from 'lucide-react'
+import { Sun, Moon, LogOut, UserCircle, HandCoins } from 'lucide-react'
 import { clearAuth, getStoredUser } from '../services/auth.service'
 import { useTheme } from '../contexts/ThemeContext'
 import { UserAvatar } from './UserAvatar'
@@ -59,6 +59,13 @@ export function MobilePageHeader({ title }: { title: string }) {
                 >
                   <UserCircle className="w-4 h-4 text-slate-400" />
                   Profil Saya
+                </button>
+                <button
+                  onClick={() => { setOpen(false); navigate('/debts') }}
+                  className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-semibold text-[#001e1d] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                >
+                  <HandCoins className="w-4 h-4 text-slate-400" />
+                  Hutang & Piutang
                 </button>
                 <button
                   onClick={handleLogout}
