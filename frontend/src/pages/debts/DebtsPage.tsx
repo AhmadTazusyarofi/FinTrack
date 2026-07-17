@@ -244,49 +244,48 @@ export function DebtsPage() {
                     {getDueDateLabel(debt.dueDate)}
                   </p>
                 </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  {debt.status === 'ACTIVE' && (
-                    <button
-                      onClick={() => { setPayDebt(debt); setPayForm({ ...EMPTY_PAY, accountId: accounts[0]?.id ?? '', date: todayStr() }) }}
-                      className={`text-[11px] font-bold px-3 py-1.5 rounded-xl ${
-                        debt.type === 'PAYABLE'
-                          ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
-                          : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
-                      }`}
-                    >
-                      {debt.type === 'PAYABLE' ? 'Bayar' : 'Terima'}
-                    </button>
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() => setActiveMenu(activeMenu === debt.id ? null : debt.id)}
+                    className="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10 transition-all"
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </button>
+                  {activeMenu === debt.id && (
+                    <div className="absolute right-0 top-8 z-10 bg-white dark:bg-[#1a1f2e] rounded-xl shadow-lg border border-slate-100 dark:border-white/5 py-1 w-40 text-xs font-semibold">
+                      {debt.status === 'ACTIVE' && (
+                        <button
+                          onClick={() => { setPayDebt(debt); setPayForm({ ...EMPTY_PAY, accountId: accounts[0]?.id ?? '', date: todayStr() }); setActiveMenu(null) }}
+                          className={`flex items-center gap-2 w-full px-3 py-2 transition-colors ${
+                            debt.type === 'PAYABLE'
+                              ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10'
+                              : 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/10'
+                          }`}
+                        >
+                          <HandCoins className="w-3.5 h-3.5" />
+                          {debt.type === 'PAYABLE' ? 'Bayar Cicilan' : 'Terima Cicilan'}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { openDetail(debt); setActiveMenu(null) }}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-[#001e1d] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <ChevronRight className="w-3.5 h-3.5" /> Riwayat
+                      </button>
+                      <button
+                        onClick={() => { setEditDebt(debt); setEditForm({ personName: debt.personName, dueDate: debt.dueDate ?? '', note: debt.note ?? '' }); setActiveMenu(null) }}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-[#001e1d] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5" /> Edit
+                      </button>
+                      <button
+                        onClick={() => { setDeleteId(debt.id); setActiveMenu(null) }}
+                        className="flex items-center gap-2 w-full px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Hapus
+                      </button>
+                    </div>
                   )}
-                  <div className="relative">
-                    <button
-                      onClick={() => setActiveMenu(activeMenu === debt.id ? null : debt.id)}
-                      className="p-1.5 rounded-lg text-slate-300 dark:text-slate-600 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/10 transition-all"
-                    >
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
-                    {activeMenu === debt.id && (
-                      <div className="absolute right-0 top-8 z-10 bg-white dark:bg-[#1a1f2e] rounded-xl shadow-lg border border-slate-100 dark:border-white/5 py-1 w-36 text-xs font-semibold">
-                        <button
-                          onClick={() => { openDetail(debt); setActiveMenu(null) }}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-[#001e1d] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-                        >
-                          <ChevronRight className="w-3.5 h-3.5" /> Riwayat
-                        </button>
-                        <button
-                          onClick={() => { setEditDebt(debt); setEditForm({ personName: debt.personName, dueDate: debt.dueDate ?? '', note: debt.note ?? '' }); setActiveMenu(null) }}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-[#001e1d] dark:text-white hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-                        >
-                          <Pencil className="w-3.5 h-3.5" /> Edit
-                        </button>
-                        <button
-                          onClick={() => { setDeleteId(debt.id); setActiveMenu(null) }}
-                          className="flex items-center gap-2 w-full px-3 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" /> Hapus
-                        </button>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -318,7 +317,7 @@ export function DebtsPage() {
 
       {/* ── Add Modal ── */}
       {showAdd && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center px-4 pb-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }} onClick={() => setShowAdd(false)} />
           <div className="relative bg-white dark:bg-[#1a1f2e] rounded-3xl shadow-2xl w-full max-w-md">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-white/5">
@@ -382,7 +381,7 @@ export function DebtsPage() {
 
       {/* ── Pay/Receive Modal ── */}
       {payDebt && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center px-4 pb-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }} onClick={() => setPayDebt(null)} />
           <div className="relative bg-white dark:bg-[#1a1f2e] rounded-3xl shadow-2xl w-full max-w-md">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-white/5">
@@ -442,7 +441,7 @@ export function DebtsPage() {
 
       {/* ── Edit Modal ── */}
       {editDebt && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center px-4 pb-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }} onClick={() => setEditDebt(null)} />
           <div className="relative bg-white dark:bg-[#1a1f2e] rounded-3xl shadow-2xl w-full max-w-md">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-white/5">
@@ -483,7 +482,7 @@ export function DebtsPage() {
 
       {/* ── Delete Confirm ── */}
       {deleteId && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center px-4 pb-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }} onClick={() => setDeleteId(null)} />
           <div className="relative bg-white dark:bg-[#1a1f2e] rounded-3xl shadow-2xl w-full max-w-md p-6">
             <h3 className="text-base font-bold text-[#001e1d] dark:text-white mb-2">Hapus Catatan?</h3>
@@ -505,7 +504,7 @@ export function DebtsPage() {
 
       {/* ── Detail / History Modal ── */}
       {detailDebt && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center px-4 pb-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/40" style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }} onClick={() => setDetailDebt(null)} />
           <div className="relative bg-white dark:bg-[#1a1f2e] rounded-3xl shadow-2xl w-full max-w-md flex flex-col" style={{ maxHeight: 'calc(100vh - 80px)' }}>
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-white/5 shrink-0">

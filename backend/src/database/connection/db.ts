@@ -12,4 +12,5 @@ export const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   decimalNumbers: true,
+  dateStrings: true,
 })

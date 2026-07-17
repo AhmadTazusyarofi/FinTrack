@@ -25,7 +25,7 @@ function mapDebt(r: any): Debt {
     personName: r.person_name ?? r.personName,
     amount:     Number(r.amount),
     paidAmount: Number(r.paid_amount ?? r.paidAmount ?? 0),
-    dueDate:    r.due_date    ?? r.dueDate    ?? null,
+    dueDate:    r.due_date ? String(r.due_date).split('T')[0] : (r.dueDate ? String(r.dueDate).split('T')[0] : null),
     note:       r.note        ?? null,
     status:     r.status,
     createdAt:  r.created_at  ?? r.createdAt  ?? '',
