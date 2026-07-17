@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import {
-  Plus, MoreHorizontal, Pencil, Trash2, X,
+  MoreHorizontal, Pencil, Trash2, X,
   ChevronRight, HandCoins, ArrowDownLeft, ArrowUpRight,
 } from 'lucide-react'
 import { MobilePageHeader } from '../../components/MobilePageHeader'
@@ -158,7 +158,7 @@ export function DebtsPage() {
       <div className="px-5 pt-5 space-y-5">
         {/* Summary */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-red-50 dark:bg-red-500/10 rounded-2xl p-4">
+          <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-7 h-7 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
                 <ArrowUpRight className="w-4 h-4 text-red-500" strokeWidth={2.5} />
@@ -169,7 +169,7 @@ export function DebtsPage() {
               {loading ? '—' : formatCurrency(totalPayable)}
             </p>
           </div>
-          <div className="bg-amber-50 dark:bg-amber-500/10 rounded-2xl p-4">
+          <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center shrink-0">
                 <ArrowDownLeft className="w-4 h-4 text-amber-500" strokeWidth={2.5} />
@@ -188,8 +188,8 @@ export function DebtsPage() {
             <button key={t} onClick={() => setTab(t)}
               className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
                 tab === t
-                  ? 'bg-white dark:bg-[#1a1f2e] text-[#004643] dark:text-white shadow-sm'
-                  : 'text-slate-400 dark:text-slate-500'
+                    ? "bg-brand-bg text-brand-headline shadow-sm"
+                    : "text-brand-stroke/50 hover:text-brand-stroke dark:text-slate-400 dark:hover:text-white"
               }`}>
               {t === 'PAYABLE' ? 'Hutang Saya' : 'Piutang Saya'}
             </button>
@@ -201,7 +201,6 @@ export function DebtsPage() {
           onClick={() => { setAddForm({ ...EMPTY_ADD, type: tab }); setShowAdd(true) }}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#004643] text-white text-sm font-bold active:opacity-90 transition-opacity"
         >
-          <Plus className="w-4 h-4" />
           {tab === 'PAYABLE' ? 'Catat Hutang Baru' : 'Catat Piutang Baru'}
         </button>
 
