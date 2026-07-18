@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -58,6 +59,7 @@ const formatCurrency = (value: number) =>
   }).format(value);
 
 export function TransactionsPage() {
+  const location = useLocation();
   const [filter, setFilter] = useState<"all" | "INCOME" | "EXPENSE">("all");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -85,6 +87,15 @@ export function TransactionsPage() {
   const [filterYear, setFilterYear] = useState<number | "">("");
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if ((location.state as { openModal?: boolean } | null)?.openModal) {
+      setIsOpen(true);
+      setForm(emptyForm);
+      setEditingTx(null);
+      window.history.replaceState({}, "");
+    }
+  }, [location.state]);
 
   const refreshStats = useCallback(() => {
     getTransactions({ limit: 9999 })
