@@ -92,6 +92,30 @@ export interface ReportSummary {
   recentTransactions: Transaction[]
 }
 
+export type WishlistPriority = 'LOW' | 'MEDIUM' | 'HIGH'
+
+export interface WishlistItem {
+  id: string
+  userId: string
+  name: string
+  targetPrice: number
+  currentSavings: number
+  priority: WishlistPriority
+  notes: string | null
+  isPurchased: boolean
+  remaining: number
+  avgMonthlySavings: number
+  monthsNeeded: number | null
+  estimatedDate: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface WishlistResponse {
+  items: WishlistItem[]
+  avgMonthlySavings: number
+}
+
 export type DebtType = 'PAYABLE' | 'RECEIVABLE'
 export type DebtStatus = 'ACTIVE' | 'SETTLED'
 
