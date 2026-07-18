@@ -12,6 +12,7 @@ import budgetRouter      from './modules/budgets/budgets.routes'
 import reportRouter      from './modules/reports/reports.routes'
 import debtRouter        from './modules/debts/debts.routes'
 import receiptRouter     from './modules/receipts/receipts.routes'
+import wishlistRouter    from './modules/wishlists/wishlists.routes'
 import { logAccess, logError, logInfo } from './utils/logger'
 
 dotenv.config()
@@ -47,6 +48,7 @@ app.use('/api/budgets',      budgetRouter)
 app.use('/api/reports',      reportRouter)
 app.use('/api/debts',        debtRouter)
 app.use('/api/receipts',     receiptRouter)
+app.use('/api/wishlists',    wishlistRouter)
 
 // 404 handler
 app.use((req: Request, res: Response) => {
