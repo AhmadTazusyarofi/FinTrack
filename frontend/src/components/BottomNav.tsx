@@ -6,6 +6,7 @@ const navItems = [
   { path: '/transactions', icon: '/assets/transaction.png', alt: 'Transaksi' },
   { path: '/income',       icon: '/assets/wallet.png',      alt: 'Pemasukan' },
   { path: '/expenses',     icon: '/assets/list.png',        alt: 'Pengeluaran' },
+  { path: '/wishlist',     icon: '/assets/wishlist.png',    alt: 'Wishlist' },
 ]
 
 export function BottomNav() {

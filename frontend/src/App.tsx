@@ -9,6 +9,7 @@ import { ProfilePage } from './pages/profile/ProfilePage'
 import { CategoriesPage } from './pages/settings/CategoriesPage'
 import { AccountsPage } from './pages/settings/AccountsPage'
 import { DebtsPage } from './pages/debts/DebtsPage'
+import { WishlistPage } from './pages/wishlist/WishlistPage'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
 
@@ -32,6 +33,7 @@ function App() {
             <Route path="/settings/categories" element={<CategoriesPage />} />
             <Route path="/settings/accounts" element={<AccountsPage />} />
             <Route path="/debts" element={<DebtsPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
           </Route>
         </Route>
 

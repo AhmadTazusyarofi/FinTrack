@@ -31,7 +31,10 @@ import { getReportSummary } from "../../services/reportService";
 import { getBudgets } from "../../services/budgetService";
 import { getAccounts } from "../../services/accountService";
 import { getDebts } from "../../services/debtService";
+import { getCategories } from "../../services/categoryService";
 import { getStoredUser, clearAuth } from "../../services/auth.service";
+import { ScanReceiptModal } from "../../components/ScanReceiptModal";
+import { Account, Category } from "../../types";
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("id-ID", {
@@ -49,8 +52,11 @@ export function DashboardPage() {
   const [report, setReport] = useState<ReportSummary | null>(null);
   const [budgets, setBudgets] = useState<BudgetWithSpending[]>([]);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [expenseCategories, setExpenseCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [scanModalOpen, setScanModalOpen] = useState(false);
   const [debtSummary, setDebtSummary] = useState<{
     totalPayable: number;
     totalReceivable: number;
@@ -70,11 +76,14 @@ export function DashboardPage() {
       getBudgets(month, year),
       getAccounts(),
       getDebts(),
+      getCategories(),
     ])
-      .then(([rep, budgetList, accounts, debts]) => {
+      .then(([rep, budgetList, accs, debts, cats]) => {
         setReport(rep);
         setBudgets(budgetList);
-        setTotalBalance(accounts.reduce((s, a) => s + a.balance, 0));
+        setAccounts(accs);
+        setTotalBalance(accs.reduce((s, a) => s + a.balance, 0));
+        setExpenseCategories((cats as Category[]).filter((c) => c.type === "EXPENSE"));
         const active = (debts as Debt[]).filter((d) => d.status === "ACTIVE");
         setDebtSummary({
           totalPayable: active
@@ -228,6 +237,34 @@ export function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Pintasan ── */}
+      <div className="px-5 mb-6">
+        <h2 className="text-sm font-bold text-[#001e1d] dark:text-white mb-3">
+          Pintasan
+        </h2>
+        <div className="grid grid-cols-4 gap-3">
+          {[
+            { label: "Transaksi",       icon: "/assets/shopping.png", action: () => navigate("/transactions", { state: { openModal: true } }) },
+            { label: "Hutang &\nPiutang", icon: "/assets/debt.png",  action: () => navigate("/debts") },
+            { label: "Atur Budget",     icon: "/assets/budget.png",   action: () => navigate("/expenses") },
+            { label: "Scan Struk Pengeluaran",      icon: "/assets/qr-code.png",  action: () => setScanModalOpen(true) },
+          ].map(({ label, icon, action }) => (
+            <button
+              key={label}
+              onClick={action}
+              className="flex flex-col items-center gap-2"
+            >
+              <div className="w-14 h-14 bg-slate-50 dark:bg-white/5 rounded-2xl flex items-center justify-center p-2.5">
+                <img src={icon} alt={label} className="w-full h-full object-contain" />
+              </div>
+              <span className="text-[10px] font-semibold text-[#001e1d] dark:text-slate-300 text-center leading-tight whitespace-pre-line">
+                {label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* ── Ringkasan ── */}
       <div className="px-5 mb-6">
         <h2 className="text-sm font-bold text-[#001e1d] dark:text-white mb-3">
@@ -236,12 +273,12 @@ export function DashboardPage() {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
+              {/* <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
                 <ArrowDownLeft
                   className="w-4 h-4 text-emerald-600"
                   strokeWidth={2.5}
                 />
-              </div>
+              </div> */}
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
                 Pemasukan
               </span>
@@ -252,12 +289,12 @@ export function DashboardPage() {
           </div>
           <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+              {/* <div className="w-7 h-7 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
                 <ArrowUpRight
                   className="w-4 h-4 text-red-500"
                   strokeWidth={2.5}
                 />
-              </div>
+              </div> */}
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
                 Pengeluaran
               </span>
@@ -291,7 +328,7 @@ export function DashboardPage() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {debtSummary.totalPayable > 0 && (
-                  <div className="bg-red-50 dark:bg-red-500/10 rounded-xl p-3">
+                  <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-3">
                     <p className="text-[10px] text-slate-400 font-semibold mb-1">
                       Hutang Aktif
                     </p>
@@ -305,7 +342,7 @@ export function DashboardPage() {
                   </div>
                 )}
                 {debtSummary.totalReceivable > 0 && (
-                  <div className="bg-amber-50 dark:bg-amber-500/10 rounded-xl p-3">
+                  <div className="bg-slate-50 dark:bg-white/5 rounded-xl p-3">
                     <p className="text-[10px] text-slate-400 font-semibold mb-1">
                       Piutang Aktif
                     </p>
@@ -454,6 +491,16 @@ export function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Scan Receipt Modal ── */}
+      {scanModalOpen && (
+        <ScanReceiptModal
+          categories={expenseCategories}
+          accounts={accounts}
+          onClose={() => setScanModalOpen(false)}
+          onSaved={() => {}}
+        />
+      )}
+
       {/* ── Transaksi Terakhir ── */}
       <div className="px-5 pb-6">
         <div className="flex items-center justify-between mb-3">
@@ -462,7 +509,7 @@ export function DashboardPage() {
           </h2>
           <button
             onClick={() => navigate("/transactions")}
-            className="text-[10px] font-bold text-[#004643] flex items-center gap-0.5"
+            className="text-[10px] font-bold dark:text-white flex items-center gap-0.5"
           >
             Lihat Semua <ArrowRight className="w-3 h-3" />
           </button>

@@ -6,6 +6,7 @@ const PAGE_TITLES: Record<string, string> = {
   '/transactions': 'Transaksi',
   '/income': 'Pemasukan',
   '/expenses': 'Pengeluaran',
+  '/wishlist': 'Wishlist',
 }
 
 export function DashboardLayout() {
