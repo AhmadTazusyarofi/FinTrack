@@ -103,6 +103,7 @@ export interface WishlistItem {
   priority: WishlistPriority
   notes: string | null
   isPurchased: boolean
+  sortOrder: number
   remaining: number
   avgMonthlySavings: number
   monthsNeeded: number | null
