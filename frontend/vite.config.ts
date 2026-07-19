@@ -8,10 +8,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['pwa-192x192.png', 'pwa-512x512.png', 'apple-touch-icon.png'],
+      includeAssets: ['BukuKasKu-192x192.png', 'BukuKasKu-512x512.png'],
       manifest: {
-        name: 'Finance Tracker',
-        short_name: 'FinTrack',
+        name: 'BukuKasKu',
+        short_name: 'BukuKasKu',
         description: 'Aplikasi pencatat keuangan pribadi',
         theme_color: '#004643',
         background_color: '#004643',
@@ -20,17 +20,17 @@ export default defineConfig({
         start_url: '/dashboard',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'BukuKasKu-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'BukuKasKu-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'BukuKasKu-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',
