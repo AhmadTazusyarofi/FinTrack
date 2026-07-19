@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, LogIn, Lock, Mail, Sun, Moon } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Sun, Moon } from "lucide-react";
 import { loginRequest, saveAuth } from "../../services/auth.service";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -53,7 +53,7 @@ export function LoginPage() {
   const eyeCls = `absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${isDark ? "text-white/30 hover:text-white/70" : "text-brand-stroke/40 hover:text-brand-stroke/70"}`;
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-300 ${isDark ? "bg-[#0f1117]" : "bg-white"}`}>
+    <div className={`fixed inset-0 overflow-hidden transition-colors duration-300 ${isDark ? "bg-[#0f1117]" : "bg-white"}`}>
       {/* Theme toggle */}
       <button
         onClick={toggleTheme}
@@ -62,7 +62,7 @@ export function LoginPage() {
         {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
       </button>
 
-      {/* Background decoration */}
+      {/* Background decoration — fixed, tidak ikut scroll */}
       <div className="absolute inset-0 pointer-events-none">
         <div className={`absolute -top-32 -left-32 w-96 h-96 rounded-full ${isDark ? "bg-brand-secondary/5" : "bg-brand-secondary/20"}`} />
         <div className={`absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full ${isDark ? "bg-brand-secondary/5" : "bg-brand-secondary/15"}`} />
@@ -71,7 +71,10 @@ export function LoginPage() {
         <div className="absolute bottom-1/4 left-1/3 w-48 h-48 rounded-full bg-brand-highlight/30 blur-3xl" />
       </div>
 
-      <div className="w-full max-w-md relative z-10 px-8">
+      {/* Scrollable content area */}
+      <div className="relative z-10 h-full overflow-y-auto">
+        <div className="min-h-full flex items-center justify-center p-4">
+        <div className="w-full max-w-md px-8">
         {/* Logo */}
         <div className="text-center mb-10">
           <h1 className={`text-3xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-brand-stroke"}`}>
@@ -84,9 +87,6 @@ export function LoginPage() {
 
         {/* Heading */}
         <div className="mb-5">
-          <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-brand-stroke"}`}>
-            Masuk ke akun
-          </h2>
           <p className={`text-sm mt-0.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
             Masukkan email dan password kamu
           </p>
@@ -154,10 +154,8 @@ export function LoginPage() {
             disabled={loading}
             className="w-full mt-2 flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-bg hover:bg-brand-bg/90 active:scale-[0.98] text-brand-headline font-bold text-sm rounded-xl transition-all duration-200 shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? (
+            {loading && (
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <LogIn className="w-4 h-4" />
             )}
             {loading ? "Memproses..." : "Masuk"}
           </button>
@@ -173,6 +171,8 @@ export function LoginPage() {
         <p className={`text-center text-xs font-semibold mt-6 ${isDark ? "text-slate-600" : "text-slate-400"}`}>
           &copy; {new Date().getFullYear()} BukuKasKu
         </p>
+        </div>
+        </div>
       </div>
     </div>
   );

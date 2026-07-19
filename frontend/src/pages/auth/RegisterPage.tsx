@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, UserPlus, Lock, Mail, User, Camera, Sun, Moon } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, User, Camera, Sun, Moon } from "lucide-react";
 import { registerRequest, saveAuth } from "../../services/auth.service";
 import { uploadAvatarFile } from "../../services/profileService";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -100,7 +100,7 @@ export function RegisterPage() {
   const eyeCls = `absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors ${isDark ? "text-white/30 hover:text-white/70" : "text-brand-stroke/40 hover:text-brand-stroke/70"}`;
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-300 ${isDark ? "bg-[#0f1117]" : "bg-white"}`}>
+    <div className={`fixed inset-0 overflow-hidden transition-colors duration-300 ${isDark ? "bg-[#0f1117]" : "bg-white"}`}>
       {/* Theme toggle */}
       <button
         onClick={toggleTheme}
@@ -109,7 +109,7 @@ export function RegisterPage() {
         {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
       </button>
 
-      {/* Background decoration */}
+      {/* Background decoration — fixed, tidak ikut scroll */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-brand-secondary/20" />
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-brand-secondary/15" />
@@ -118,7 +118,10 @@ export function RegisterPage() {
         <div className="absolute bottom-1/4 right-1/3 w-48 h-48 rounded-full bg-brand-highlight/30 blur-3xl" />
       </div>
 
-      <div className="w-full max-w-md relative z-10 px-8 py-10">
+      {/* Scrollable content area */}
+      <div className="relative z-10 h-full overflow-y-auto">
+        <div className="min-h-full flex items-center justify-center p-4">
+        <div className="w-full max-w-md px-8 py-10">
         {/* Heading */}
         <div className="mb-5">
           <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-brand-stroke"}`}>
@@ -287,10 +290,8 @@ export function RegisterPage() {
             disabled={loading}
             className="w-full mt-2 flex items-center justify-center gap-2 px-6 py-3.5 bg-brand-bg hover:bg-brand-bg/90 active:scale-[0.98] text-brand-headline font-bold text-sm rounded-xl transition-all duration-200 shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? (
+            {loading && (
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <UserPlus className="w-4 h-4" />
             )}
             {loading ? "Memproses..." : "Buat Akun"}
           </button>
@@ -306,6 +307,8 @@ export function RegisterPage() {
         <p className={`text-center text-xs font-semibold mt-6 ${isDark ? "text-slate-600" : "text-slate-400"}`}>
           &copy; {new Date().getFullYear()} BukuKasKu
         </p>
+        </div>
+        </div>
       </div>
     </div>
   );
