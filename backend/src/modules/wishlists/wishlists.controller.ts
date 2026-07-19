@@ -8,6 +8,7 @@ import {
   updateWishlistItem,
   purchaseWishlistItem,
   deleteWishlistItem,
+  reorderWishlistItems,
 } from './wishlists.service'
 
 const wishlistSchema = z.object({
@@ -74,5 +75,19 @@ export async function deleteWishlistController(req: AuthRequest, res: Response):
     sendSuccess(res, null)
   } catch (err) {
     sendError(res, 'Gagal menghapus wishlist item', 500)
+  }
+}
+
+export async function reorderWishlistController(req: AuthRequest, res: Response): Promise<void> {
+  try {
+    const { ids } = req.body
+    if (!Array.isArray(ids) || ids.some((id) => typeof id !== 'string')) {
+      sendError(res, 'ids harus berupa array string', 422)
+      return
+    }
+    await reorderWishlistItems(req.userId!, ids)
+    sendSuccess(res, null)
+  } catch (err) {
+    sendError(res, 'Gagal menyimpan urutan', 500)
   }
 }

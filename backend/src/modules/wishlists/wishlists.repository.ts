@@ -11,6 +11,7 @@ export interface WishlistRow {
   priority: 'LOW' | 'MEDIUM' | 'HIGH'
   notes: string | null
   is_purchased: number
+  sort_order: number
   created_at: string
   updated_at: string
 }
@@ -23,10 +24,19 @@ export interface MonthlySaving {
 
 export async function findWishlists(userId: string): Promise<WishlistRow[]> {
   const [rows] = await pool.query<RowDataPacket[]>(
-    'SELECT * FROM wishlists WHERE user_id = ? ORDER BY is_purchased ASC, created_at DESC',
+    'SELECT * FROM wishlists WHERE user_id = ? ORDER BY is_purchased ASC, sort_order ASC, created_at ASC',
     [userId]
   )
   return rows as WishlistRow[]
+}
+
+export async function reorderWishlists(userId: string, ids: string[]): Promise<void> {
+  for (let i = 0; i < ids.length; i++) {
+    await pool.query<ResultSetHeader>(
+      'UPDATE wishlists SET sort_order = ? WHERE id = ? AND user_id = ?',
+      [i, ids[i], userId]
+    )
+  }
 }
 
 export async function findWishlistById(id: string, userId: string): Promise<WishlistRow | null> {

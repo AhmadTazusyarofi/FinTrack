@@ -11,6 +11,7 @@ function mapItem(r: Record<string, unknown>): WishlistItem {
     priority: r.priority as WishlistPriority,
     notes: (r.notes as string | null) ?? null,
     isPurchased: Boolean(r.is_purchased),
+    sortOrder: Number(r.sort_order ?? 0),
     remaining: Number(r.remaining ?? 0),
     avgMonthlySavings: Number(r.avg_monthly_savings ?? 0),
     monthsNeeded: r.months_needed != null ? Number(r.months_needed) : null,
@@ -54,4 +55,8 @@ export async function purchaseWishlist(id: string): Promise<WishlistItem> {
 
 export async function deleteWishlist(id: string): Promise<void> {
   await api.delete(`/wishlists/${id}`)
+}
+
+export async function reorderWishlists(ids: string[]): Promise<void> {
+  await api.patch('/wishlists/reorder', { ids })
 }

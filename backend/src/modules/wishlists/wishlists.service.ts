@@ -5,6 +5,7 @@ import {
   updateWishlist,
   markPurchased,
   deleteWishlist,
+  reorderWishlists,
   getMonthlyNetSavings,
   WishlistRow,
 } from './wishlists.repository'
@@ -79,4 +80,8 @@ export async function purchaseWishlistItem(id: string, userId: string) {
 
 export async function deleteWishlistItem(id: string, userId: string) {
   await deleteWishlist(id, userId)
+}
+
+export async function reorderWishlistItems(userId: string, ids: string[]) {
+  await reorderWishlists(userId, ids)
 }
