@@ -450,10 +450,7 @@ export function IncomePage() {
               {loading && Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="border-b border-brand-stroke/5 dark:border-white/5 last:border-0">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="w-9 h-9 rounded-xl shrink-0" />
-                      <Skeleton className="h-3.5 w-32" />
-                    </div>
+                    <Skeleton className="h-3.5 w-32" />
                   </td>
                   <td className="px-3 py-4"><Skeleton className="h-5 w-16 rounded-lg" /></td>
                   <td className="px-3 py-4"><Skeleton className="h-3.5 w-20" /></td>
@@ -472,14 +469,9 @@ export function IncomePage() {
               {!loading && paginatedTransactions.map((tx) => (
                 <tr key={tx.id} className="group hover:bg-emerald-50/30 dark:hover:bg-white/5 transition-colors duration-150">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                        <ArrowDownLeft className="w-4 h-4 stroke-[2.5]" />
-                      </div>
-                      <span className="text-sm font-semibold text-brand-stroke dark:text-white group-hover:text-brand-bg transition-colors">
-                        {tx.description}
-                      </span>
-                    </div>
+                    <span className="text-sm font-semibold text-brand-stroke dark:text-white group-hover:text-brand-bg transition-colors">
+                      {tx.description}
+                    </span>
                   </td>
                   <td className="px-3 py-4">
                     <span className="inline-flex px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-lg uppercase tracking-wide">

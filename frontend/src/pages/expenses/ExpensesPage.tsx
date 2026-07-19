@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import {
   TrendingDown, ArrowUpRight, ShieldAlert, BarChart2,
-  Settings2, X, Trash2, Search, Pencil, Copy, MoreHorizontal, ChevronLeft, ChevronRight, ScanLine,
+  Settings2, X, Trash2, Search, Pencil, Copy, MoreHorizontal, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts'
 import { Transaction, Category, BudgetWithSpending, Account } from '../../types'
@@ -12,7 +12,6 @@ import { getCategories } from '../../services/categoryService'
 import { getAccounts } from '../../services/accountService'
 import { MonthYearPicker } from '../../components/MonthYearPicker'
 import { Skeleton } from '../../components/Skeleton'
-import { ScanReceiptModal } from '../../components/ScanReceiptModal'
 
 const CHART_COLORS = ['#004643', '#abd1c6', '#f9bc60', '#e16162', '#6366f1', '#14b8a6', '#f97316', '#8b5cf6']
 const ITEMS_PER_PAGE = 5
@@ -70,7 +69,6 @@ export function ExpensesPage() {
   const [txAccounts, setTxAccounts] = useState<Account[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const [editForm, setEditForm] = useState({ amount: '', description: '', categoryId: '', accountId: '', date: '' })
-  const [scanModalOpen, setScanModalOpen] = useState(false)
 
   const refreshBudgets = () => {
     getBudgets(month, year).then(setBudgetList).catch(() => {})
@@ -461,18 +459,9 @@ export function ExpensesPage() {
               <h3 className="text-base font-bold text-brand-stroke dark:text-white">Riwayat Pengeluaran</h3>
               <p className="text-xs text-brand-stroke/40 dark:text-slate-400 font-medium mt-0.5">{txTotal} transaksi bulan ini</p>
             </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setScanModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-tertiary text-white text-xs font-bold rounded-xl hover:opacity-90 transition-opacity shrink-0"
-              >
-                <ScanLine className="w-3.5 h-3.5" />
-                Scan Struk
-              </button>
-              <span className="px-3 py-1.5 bg-slate-50 dark:bg-white/5 text-brand-stroke/60 dark:text-slate-400 text-xs font-bold rounded-lg border border-brand-stroke/5 dark:border-white/5 shrink-0">
-                {currentMonthStr}
-              </span>
-            </div>
+            <span className="px-3 py-1.5 bg-slate-50 dark:bg-white/5 text-brand-stroke/60 dark:text-slate-400 text-xs font-bold rounded-lg border border-brand-stroke/5 dark:border-white/5 shrink-0">
+              {currentMonthStr}
+            </span>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-stroke/30 pointer-events-none" />
@@ -506,10 +495,7 @@ export function ExpensesPage() {
               {loading && Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="border-b border-brand-stroke/5 dark:border-white/5 last:border-0">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Skeleton className="w-9 h-9 rounded-xl shrink-0" />
-                      <Skeleton className="h-3.5 w-32" />
-                    </div>
+                    <Skeleton className="h-3.5 w-32" />
                   </td>
                   <td className="px-3 py-4"><Skeleton className="h-5 w-16 rounded-lg" /></td>
                   <td className="px-3 py-4"><Skeleton className="h-3.5 w-20" /></td>
@@ -528,17 +514,12 @@ export function ExpensesPage() {
               {!loading && paginatedTransactions.map((tx) => (
                 <tr key={tx.id} className="group hover:bg-red-50/20 dark:hover:bg-white/5 transition-colors duration-150">
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-red-50 text-brand-tertiary flex items-center justify-center shrink-0">
-                        <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
-                      </div>
-                      <span className="text-sm font-semibold text-brand-stroke dark:text-white group-hover:text-brand-tertiary transition-colors">
-                        {tx.description}
-                      </span>
-                    </div>
+                    <span className="text-sm font-semibold text-brand-stroke dark:text-white group-hover:text-brand-tertiary transition-colors">
+                      {tx.description}
+                    </span>
                   </td>
                   <td className="px-3 py-4">
-                    <span className="inline-flex px-2.5 py-1 bg-red-50 text-brand-tertiary text-[10px] font-bold rounded-lg uppercase tracking-wide">
+                    <span className="inline-flex px-2.5 py-1 bg-slate-50 dark:bg-white/5 text-brand-stroke dark:text-white text-[10px] font-bold rounded-lg uppercase tracking-wide">
                       {tx.categoryName ?? '-'}
                     </span>
                   </td>
@@ -822,14 +803,6 @@ export function ExpensesPage() {
         </div>
       )}
 
-      {scanModalOpen && (
-        <ScanReceiptModal
-          categories={expenseCategories}
-          accounts={txAccounts}
-          onClose={() => setScanModalOpen(false)}
-          onSaved={() => setRefreshKey(k => k + 1)}
-        />
-      )}
     </div>
   )
 }

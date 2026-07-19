@@ -1,8 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ArrowUpRight,
-  ArrowDownLeft,
   ArrowRight,
   Sun,
   Moon,
@@ -55,8 +53,15 @@ export function DashboardPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [expenseCategories, setExpenseCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [scanModalOpen, setScanModalOpen] = useState(false);
+
+  const [pullY, setPullY] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const touchStartY = useRef(0);
+  const PULL_THRESHOLD = 70;
   const [debtSummary, setDebtSummary] = useState<{
     totalPayable: number;
     totalReceivable: number;
@@ -95,8 +100,31 @@ export function DashboardPage() {
         });
       })
       .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [month, year]);
+      .finally(() => { setLoading(false); setIsRefreshing(false); });
+  }, [month, year, refreshKey]);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    if (window.scrollY === 0) {
+      touchStartY.current = e.touches[0].clientY;
+      setIsPulling(true);
+    }
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    if (!isPulling) return;
+    const delta = e.touches[0].clientY - touchStartY.current;
+    if (delta > 0) setPullY(Math.min(delta * 0.45, PULL_THRESHOLD + 20));
+  }
+
+  function handleTouchEnd() {
+    if (!isPulling) return;
+    setIsPulling(false);
+    if (pullY >= PULL_THRESHOLD) {
+      setIsRefreshing(true);
+      setRefreshKey((k) => k + 1);
+    }
+    setPullY(0);
+  }
 
   const chartData = useMemo(() => {
     if (!report) return [];
@@ -121,7 +149,25 @@ export function DashboardPage() {
     totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
 
   return (
-    <div className="bg-white dark:bg-[#0f1117] min-h-screen">
+    <div
+      className="bg-white dark:bg-[#0f1117] min-h-screen"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* ── Pull-to-refresh indicator ── */}
+      <div
+        className="flex items-center justify-center overflow-hidden transition-all duration-200"
+        style={{ height: pullY > 0 ? pullY : isRefreshing ? 56 : 0 }}
+      >
+        <div
+          className={`w-8 h-8 rounded-full border-2 border-[#004643] border-t-transparent flex items-center justify-center transition-transform duration-200 ${
+            isRefreshing ? "animate-spin" : ""
+          }`}
+          style={{ transform: !isRefreshing ? `rotate(${(pullY / PULL_THRESHOLD) * 360}deg)` : undefined }}
+        />
+      </div>
+
       {/* ── Greeting bar ── */}
       <div
         className="px-5 pb-5 flex items-center justify-between"
@@ -273,12 +319,6 @@ export function DashboardPage() {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-3">
-              {/* <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center shrink-0">
-                <ArrowDownLeft
-                  className="w-4 h-4 text-emerald-600"
-                  strokeWidth={2.5}
-                />
-              </div> */}
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
                 Pemasukan
               </span>
@@ -289,12 +329,6 @@ export function DashboardPage() {
           </div>
           <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-3">
-              {/* <div className="w-7 h-7 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
-                <ArrowUpRight
-                  className="w-4 h-4 text-red-500"
-                  strokeWidth={2.5}
-                />
-              </div> */}
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">
                 Pengeluaran
               </span>
@@ -531,23 +565,6 @@ export function DashboardPage() {
               key={tx.id}
               className="flex items-center gap-3 py-3 border-b border-slate-50 dark:border-white/5 last:border-0"
             >
-              <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  tx.type === "INCOME" ? "bg-emerald-50" : "bg-red-50"
-                }`}
-              >
-                {tx.type === "INCOME" ? (
-                  <ArrowDownLeft
-                    className="w-5 h-5 text-emerald-600"
-                    strokeWidth={2.5}
-                  />
-                ) : (
-                  <ArrowUpRight
-                    className="w-5 h-5 text-red-500"
-                    strokeWidth={2.5}
-                  />
-                )}
-              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-[#001e1d] dark:text-white truncate">
                   {tx.description}
