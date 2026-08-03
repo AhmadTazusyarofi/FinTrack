@@ -23,6 +23,12 @@ import {
   Wallet,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
+
+function toFullUrl(path: string | null | undefined): string | null {
+  if (!path) return null
+  if (path.startsWith('http') || path.startsWith('blob:')) return path
+  return `${import.meta.env.VITE_API_URL || ''}${path}`
+}
 import {
   getStoredUser,
   clearAuth,
@@ -53,7 +59,7 @@ export function ProfilePage() {
   // ── Avatar ──
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
-    user?.foto_profil ?? null,
+    toFullUrl(user?.foto_profil),
   );
   const [avatarLoading, setAvatarLoading] = useState(false);
 
@@ -106,9 +112,9 @@ export function ProfilePage() {
       const result = await uploadAvatarFile(file);
       const token = localStorage.getItem("token") ?? "";
       saveAuth(token, { ...getStoredUser()!, foto_profil: result.foto_profil });
-      setAvatarPreview(result.foto_profil);
+      setAvatarPreview(toFullUrl(result.foto_profil));
     } catch {
-      setAvatarPreview(user?.foto_profil ?? null);
+      setAvatarPreview(toFullUrl(user?.foto_profil));
     } finally {
       setAvatarLoading(false);
       e.target.value = "";

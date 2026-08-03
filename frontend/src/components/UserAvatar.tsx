@@ -21,10 +21,13 @@ export function UserAvatar({ user, size = 'md', className = '' }: Props) {
   const base = `${outer} rounded-full flex items-center justify-center overflow-hidden ${ring} ring-[#004643]/20 ${className}`
 
   if (user?.foto_profil) {
+    const src = user.foto_profil.startsWith('http')
+      ? user.foto_profil
+      : `${import.meta.env.VITE_API_URL || ''}${user.foto_profil}`
     return (
       <div className={base} style={{ background: '#004643' }}>
         <img
-          src={user.foto_profil}
+          src={src}
           alt={user.name}
           className="w-full h-full object-cover"
         />
