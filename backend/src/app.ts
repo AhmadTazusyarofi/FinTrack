@@ -21,7 +21,22 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }))
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }))
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')
+  .split(',')
+  .map(o => o.trim())
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error(`CORS: origin ${origin} tidak diizinkan`))
+    }
+  },
+  credentials: true,
+}))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')))
