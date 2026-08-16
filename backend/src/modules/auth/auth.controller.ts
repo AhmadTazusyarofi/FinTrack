@@ -19,14 +19,25 @@ const avatarStorage = multer.diskStorage({
   },
 })
 
-export const uploadAvatarMiddleware = multer({
+const multerUpload = multer({
   storage: avatarStorage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true)
     else cb(new Error('Hanya file gambar yang diperbolehkan'))
   },
 }).single('foto')
+
+export function uploadAvatarMiddleware(req: Request, res: Response, next: Parameters<typeof multerUpload>[2]): void {
+  multerUpload(req, res, (err) => {
+    if (!err) return next()
+    if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+      sendError(res, 'Ukuran file maksimal 10MB', 400)
+    } else {
+      sendError(res, err instanceof Error ? err.message : 'Gagal mengunggah file', 400)
+    }
+  })
+}
 
 const registerSchema = z.object({
   name:     z.string().min(2, 'Nama minimal 2 karakter'),
