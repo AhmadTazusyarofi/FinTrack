@@ -833,13 +833,13 @@ export function ProfilePage() {
 
       {/* ── Delete Account Modal ── */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowDeleteModal(false)}
           />
           <div
-            className="relative w-full max-w-sm mx-4 rounded-3xl border p-6 mb-8 sm:mb-0"
+            className="relative w-full max-w-sm mx-4 rounded-3xl border p-6"
             style={
               isDark
                 ? {

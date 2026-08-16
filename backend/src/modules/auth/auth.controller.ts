@@ -2,13 +2,16 @@ import { Request, Response } from 'express'
 import { z } from 'zod'
 import multer from 'multer'
 import path from 'path'
+import fs from 'fs'
 import { register, login, getMe, updateProfile, changePassword, uploadAvatar, updateEmail, deleteAccount } from './auth.service'
 import { sendSuccess, sendError } from '../../utils/response'
 import { AuthRequest } from '../../middleware/auth.middleware'
 
 const avatarStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, path.join(__dirname, '../../../public/uploads/avatars'))
+    const uploadDir = path.join(__dirname, '../../../public/uploads/avatars')
+    fs.mkdirSync(uploadDir, { recursive: true })
+    cb(null, uploadDir)
   },
   filename: (req: AuthRequest | Request, _file, cb) => {
     const userId = (req as AuthRequest).userId ?? 'unknown'
