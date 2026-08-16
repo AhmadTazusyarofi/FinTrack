@@ -95,7 +95,24 @@ export async function updateUserEmail(id: string, email: string): Promise<void> 
 }
 
 export async function deleteUserById(id: string): Promise<void> {
-  await pool.query<ResultSetHeader>('DELETE FROM users WHERE id = ?', [id])
+  const conn = await pool.getConnection()
+  try {
+    await conn.beginTransaction()
+    await conn.query('DELETE dp FROM debt_payments dp INNER JOIN debts d ON dp.debt_id = d.id WHERE d.user_id = ?', [id])
+    await conn.query('DELETE FROM debts WHERE user_id = ?', [id])
+    await conn.query('DELETE FROM transactions WHERE user_id = ?', [id])
+    await conn.query('DELETE FROM budgets WHERE user_id = ?', [id])
+    await conn.query('DELETE FROM wishlists WHERE user_id = ?', [id])
+    await conn.query('DELETE FROM accounts WHERE user_id = ?', [id])
+    await conn.query('DELETE FROM categories WHERE user_id = ?', [id])
+    await conn.query('DELETE FROM users WHERE id = ?', [id])
+    await conn.commit()
+  } catch (err) {
+    await conn.rollback()
+    throw err
+  } finally {
+    conn.release()
+  }
 }
 
 export async function createDefaultData(conn: PoolConnection, userId: string): Promise<void> {
