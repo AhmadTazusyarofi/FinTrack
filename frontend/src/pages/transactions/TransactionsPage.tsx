@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { usePayPeriod } from '../../features/period/PeriodProvider';
 import { useLocation } from "react-router-dom";
 import {
   Plus,
@@ -57,6 +58,7 @@ const formatCurrency = (value: number) =>
   }).format(value);
 
 export function TransactionsPage() {
+  const currentPeriod = usePayPeriod();
   const location = useLocation();
   const [filter, setFilter] = useState<"all" | "INCOME" | "EXPENSE">("all");
   const [search, setSearch] = useState("");
@@ -81,8 +83,8 @@ export function TransactionsPage() {
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpense, setTotalExpense] = useState(0);
 
-  const [filterMonth, setFilterMonth] = useState<number | "">("");
-  const [filterYear, setFilterYear] = useState<number | "">("");
+  const [filterMonth, setFilterMonth] = useState<number | "">(currentPeriod.month);
+  const [filterYear, setFilterYear] = useState<number | "">(currentPeriod.year);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -96,22 +98,14 @@ export function TransactionsPage() {
   }, [location.state]);
 
   const refreshStats = useCallback(() => {
-    getTransactions({ limit: 9999 })
-      .then(({ data, meta }) => {
+    getTransactions({ month: filterMonth || undefined, year: filterYear || undefined, limit: 1 })
+      .then(({ meta }) => {
         setAllTotal(meta.total);
-        setTotalIncome(
-          data
-            .filter((t) => t.type === "INCOME")
-            .reduce((s, t) => s + t.amount, 0),
-        );
-        setTotalExpense(
-          data
-            .filter((t) => t.type === "EXPENSE")
-            .reduce((s, t) => s + t.amount, 0),
-        );
+        setTotalIncome(Number(meta.totalIncome));
+        setTotalExpense(Number(meta.totalExpense));
       })
       .catch(() => {});
-  }, []);
+  }, [filterMonth, filterYear]);
 
   useEffect(() => {
     refreshStats();

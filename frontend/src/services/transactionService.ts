@@ -3,7 +3,7 @@ import { ApiResponse, Transaction, TransactionFilter } from '../types'
 
 interface PaginatedTx {
   data: Transaction[]
-  meta: { total: number; page: number; limit: number; totalPages: number }
+  meta: { total: number; page: number; limit: number; totalPages: number; totalIncome: string; totalExpense: string }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,6 +44,16 @@ export interface TxPayload {
   date: string
   categoryId: string
   accountId: string
+}
+
+// Charts and local pagination need the entire selected period, not just its first 100 rows.
+export async function getPeriodTransactions(filter: TransactionFilter): Promise<PaginatedTx> {
+  const result = await getTransactions({ ...filter, page: 1, limit: 100 })
+  for (let page = 2; page <= result.meta.totalPages; page++) {
+    const next = await getTransactions({ ...filter, page, limit: 100 })
+    result.data.push(...next.data)
+  }
+  return result
 }
 
 export async function createTransaction(data: TxPayload): Promise<Transaction> {

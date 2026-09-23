@@ -85,6 +85,7 @@ export interface MonthlyChartEntry {
 }
 
 export interface ReportSummary {
+  previousPeriodIncome: number
   totalIncome: number
   totalExpense: number
   balance: number

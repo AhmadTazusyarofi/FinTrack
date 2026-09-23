@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { usePayPeriod } from '../../features/period/PeriodProvider';
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -43,9 +44,7 @@ const formatCurrency = (value: number) =>
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
+  const { month, year, payday } = usePayPeriod();
 
   const [report, setReport] = useState<ReportSummary | null>(null);
   const [budgets, setBudgets] = useState<BudgetWithSpending[]>([]);
@@ -314,8 +313,9 @@ export function DashboardPage() {
       {/* ── Ringkasan ── */}
       <div className="px-5 mb-6">
         <h2 className="text-sm font-bold text-[#001e1d] dark:text-white mb-3">
-          Ringkasan
+          Ringkasan Periode Gaji
         </h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">{payday === null ? 'Mengikuti bulan kalender sampai tanggal gajian diatur.' : `Otomatis mengikuti tanggal gajian ${payday} setiap bulan.`}</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
             <div className="flex items-center gap-2 mb-3">
@@ -400,7 +400,7 @@ export function DashboardPage() {
           <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-bold text-[#001e1d] dark:text-white">
-                Anggaran Bulan Ini
+                Anggaran Periode Ini
               </p>
               <button
                 onClick={() => navigate("/expenses")}

@@ -33,7 +33,7 @@ export function MonthYearPicker({ month, year, onChange, allowAll = false, align
   }, [open])
 
   const label = month !== '' && year !== ''
-    ? `${MONTHS_SHORT[Number(month) - 1]} ${year}`
+    ? `Periode ${MONTHS_SHORT[Number(month) - 1]} ${year}`
     : 'Semua Periode'
 
   const handleSelect = (m: number) => {

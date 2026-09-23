@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { PaydaySettings } from '../../features/period/PaydaySettings';
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -349,6 +350,7 @@ export function ProfilePage() {
 
       {/* ── Content ── */}
       <div className="px-4 -mt-7 space-y-5 relative z-10">
+        <PaydaySettings />
         {/* Informasi Akun */}
         <div className="rounded-3xl border overflow-hidden" style={cardStyle}>
           {/* Nama */}

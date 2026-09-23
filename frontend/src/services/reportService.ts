@@ -6,6 +6,7 @@ export async function getReportSummary(month: number, year: number): Promise<Rep
   const res = await api.get<ApiResponse<any>>(`/reports/summary?month=${month}&year=${year}`)
   const d = res.data.data
   return {
+    previousPeriodIncome: Number(d.previousPeriodIncome ?? 0),
     totalIncome:  Number(d.totalIncome),
     totalExpense: Number(d.totalExpense),
     balance:      Number(d.balance),

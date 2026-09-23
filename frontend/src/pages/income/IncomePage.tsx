@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { usePayPeriod } from '../../features/period/PeriodProvider'
 import { useTheme } from '../../contexts/ThemeContext'
 import {
   TrendingUp, ArrowDownLeft, Wallet, Target,
@@ -10,7 +11,7 @@ import {
 } from 'recharts'
 import { Transaction, MonthlyChartEntry, Category, Account } from '../../types'
 import { getReportSummary } from '../../services/reportService'
-import { getTransactions, updateTransaction, deleteTransaction } from '../../services/transactionService'
+import { getPeriodTransactions, updateTransaction, deleteTransaction } from '../../services/transactionService'
 import { getCategories } from '../../services/categoryService'
 import { getAccounts } from '../../services/accountService'
 import { MonthYearPicker } from '../../components/MonthYearPicker'
@@ -47,12 +48,13 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 
 export function IncomePage() {
   const { isDark } = useTheme()
-  const now = new Date()
-  const [month, setMonth] = useState(now.getMonth() + 1)
-  const [year, setYear] = useState(now.getFullYear())
+  const currentPeriod = usePayPeriod()
+  const [month, setMonth] = useState(currentPeriod.month)
+  const [year, setYear] = useState(currentPeriod.year)
 
   const [chartData, setChartData] = useState<{ month: string; amount: number; rawMonth: string }[]>([])
   const [currentMonthIncome, setCurrentMonthIncome] = useState(0)
+  const [previousPeriodIncome, setPreviousPeriodIncome] = useState(0)
   const [incomeTransactions, setIncomeTransactions] = useState<Transaction[]>([])
   const [txTotal, setTxTotal] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -80,9 +82,10 @@ export function IncomePage() {
     setLoading(true)
     Promise.all([
       getReportSummary(month, year),
-      getTransactions({ type: 'INCOME', month, year, limit: 100 }),
+      getPeriodTransactions({ type: 'INCOME', month, year }),
     ]).then(([report, txResult]) => {
       setCurrentMonthIncome(report.totalIncome)
+      setPreviousPeriodIncome(report.previousPeriodIncome)
       setChartData(
         report.monthlyChart.map((m: MonthlyChartEntry) => ({
           month: new Date(m.month + '-01').toLocaleDateString('id-ID', { month: 'short' }),
@@ -115,12 +118,9 @@ export function IncomePage() {
     [chartData, yearTotal])
 
   const growthInfo = useMemo(() => {
-    if (chartData.length < 2) return null
-    const last = chartData[chartData.length - 1]
-    const prev = chartData[chartData.length - 2]
-    if (prev.amount === 0) return null
-    return Number((((last.amount - prev.amount) / prev.amount) * 100).toFixed(1))
-  }, [chartData])
+    if (previousPeriodIncome === 0) return null
+    return Number((((currentMonthIncome - previousPeriodIncome) / previousPeriodIncome) * 100).toFixed(1))
+  }, [currentMonthIncome, previousPeriodIncome])
 
   const sources = useMemo(() => {
     const totals: Record<string, { amount: number; name: string }> = {}
@@ -223,17 +223,17 @@ export function IncomePage() {
               <div className="flex items-center gap-1.5 mt-1.5">
                 <TrendingUp className="w-3 h-3 text-brand-highlight" />
                 <span className="text-[11px] font-bold text-brand-paragraph/70">
-                  {growthInfo >= 0 ? '+' : ''}{growthInfo}% vs bulan lalu
+                  {growthInfo >= 0 ? '+' : ''}{growthInfo}% vs periode lalu
                 </span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Bulan Ini */}
+        {/* Periode Ini */}
         <div className="bg-white dark:bg-[#1a1f2e] rounded-3xl p-6 shadow-sm border border-brand-stroke/5 dark:border-white/5 flex flex-col justify-between min-h-[140px]">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-brand-stroke/40 dark:text-slate-500 uppercase tracking-widest">Bulan Ini</span>
+            <span className="text-[10px] font-bold text-brand-stroke/40 dark:text-slate-500 uppercase tracking-widest">Periode Ini</span>
             <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
               <ArrowDownLeft className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
             </div>
@@ -247,10 +247,10 @@ export function IncomePage() {
           </div>
         </div>
 
-        {/* Target Bulanan */}
+        {/* Target Periode */}
         <div className="bg-white dark:bg-[#1a1f2e] rounded-3xl p-6 shadow-sm border border-brand-stroke/5 dark:border-white/5 flex flex-col justify-between min-h-[140px]">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-brand-stroke/40 dark:text-slate-500 uppercase tracking-widest">Target Bulanan</span>
+            <span className="text-[10px] font-bold text-brand-stroke/40 dark:text-slate-500 uppercase tracking-widest">Target Periode</span>
             <div className="flex items-center gap-1.5">
               {!editingTarget && (
                 <button
@@ -312,8 +312,8 @@ export function IncomePage() {
         <div className="bg-white dark:bg-[#1a1f2e] rounded-3xl p-6 shadow-sm border border-brand-stroke/5 dark:border-white/5 lg:col-span-2 flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-base font-bold text-brand-stroke dark:text-white">Tren Pemasukan Bulanan</h3>
-              <p className="text-xs text-brand-stroke/40 dark:text-slate-400 font-medium mt-0.5">12 bulan terakhir</p>
+              <h3 className="text-base font-bold text-brand-stroke dark:text-white">Tren Pemasukan per Periode</h3>
+              <p className="text-xs text-brand-stroke/40 dark:text-slate-400 font-medium mt-0.5">12 periode pada tahun terpilih</p>
             </div>
             <div className="flex items-center gap-2">
               <MonthYearPicker
@@ -350,7 +350,7 @@ export function IncomePage() {
           </div>
           {average > 0 && (
             <p className="text-[10px] text-brand-stroke/30 dark:text-slate-500 font-semibold mt-3 text-center">
-              Rata-rata bulanan: {formatCurrency(average)}
+              Rata-rata per periode: {formatCurrency(average)}
             </p>
           )}
         </div>
@@ -412,7 +412,7 @@ export function IncomePage() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="text-base font-bold text-brand-stroke dark:text-white">Riwayat Pemasukan</h3>
-              <p className="text-xs text-brand-stroke/40 dark:text-slate-400 font-medium mt-0.5">{txTotal} transaksi bulan ini</p>
+              <p className="text-xs text-brand-stroke/40 dark:text-slate-400 font-medium mt-0.5">{txTotal} transaksi periode ini</p>
             </div>
             <span className="px-3 py-1.5 bg-slate-50 dark:bg-white/5 text-brand-stroke/60 dark:text-slate-400 text-xs font-bold rounded-lg border border-brand-stroke/5 dark:border-white/5 shrink-0">
               {currentMonthStr}
@@ -462,7 +462,7 @@ export function IncomePage() {
               {!loading && filteredTransactions.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-sm text-brand-stroke/40 dark:text-slate-500 font-medium">
-                    {searchTerm ? 'Tidak ada hasil pencarian' : 'Belum ada transaksi pemasukan bulan ini'}
+                    {searchTerm ? 'Tidak ada hasil pencarian' : 'Belum ada transaksi pemasukan periode ini'}
                   </td>
                 </tr>
               )}
