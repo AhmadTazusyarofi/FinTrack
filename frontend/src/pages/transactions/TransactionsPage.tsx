@@ -252,7 +252,6 @@ export function TransactionsPage() {
 
   return (
     <div className="space-y-6 pb-8">
-      <div className="flex justify-end"><ReportExportButton month={filterMonth} year={filterYear} /></div>
       {/* Summary Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {[
@@ -365,13 +364,18 @@ export function TransactionsPage() {
 
       {/* Table Card */}
       <div className="bg-white dark:bg-[#1a1f2e] rounded-3xl shadow-sm border border-brand-stroke/5 dark:border-white/5 overflow-hidden">
-        <div className="px-6 py-5 border-b border-brand-stroke/5 dark:border-white/5">
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-5 border-b border-brand-stroke/5 dark:border-white/5">
+          <div className="min-w-0">
           <h3 className="text-base font-bold text-brand-stroke dark:text-white">
             Daftar Transaksi
           </h3>
           <p className="text-xs text-brand-stroke/40 dark:text-slate-400 font-medium mt-0.5">
             {totalCount} transaksi ditemukan
           </p>
+          </div>
+          <div className="shrink-0">
+            <ReportExportButton month={filterMonth} year={filterYear} />
+          </div>
         </div>
 
         <div className="overflow-x-auto">
