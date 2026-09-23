@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { usePayPeriod } from '../../features/period/PeriodProvider';
+import { ReportExportButton } from '../../features/reports/ReportExportButton';
 import { useLocation } from "react-router-dom";
 import {
   Plus,
@@ -251,6 +252,7 @@ export function TransactionsPage() {
 
   return (
     <div className="space-y-6 pb-8">
+      <div className="flex justify-end"><ReportExportButton month={filterMonth} year={filterYear} /></div>
       {/* Summary Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         {[

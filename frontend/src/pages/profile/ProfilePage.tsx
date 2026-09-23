@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { PaydaySettings } from '../../features/period/PaydaySettings';
-import { useNavigate } from "react-router-dom";
+import { usePayPeriod } from '../../features/period/PeriodProvider';
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   User,
@@ -22,6 +23,7 @@ import {
   AlertTriangle,
   Tag,
   Wallet,
+  CalendarDays,
 } from "lucide-react";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -45,6 +47,15 @@ import {
 
 export function ProfilePage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { payday } = usePayPeriod();
+  const periodSettingsRef = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (location.hash === '#periode-gaji' && periodSettingsRef.current) {
+      periodSettingsRef.current.open = true;
+      periodSettingsRef.current.scrollIntoView({ block: 'start' });
+    }
+  }, [location.hash]);
   const { isDark, toggleTheme } = useTheme();
   const user = getStoredUser();
 
@@ -350,7 +361,6 @@ export function ProfilePage() {
 
       {/* ── Content ── */}
       <div className="px-4 -mt-7 space-y-5 relative z-10">
-        <PaydaySettings />
         {/* Informasi Akun */}
         <div className="rounded-3xl border overflow-hidden" style={cardStyle}>
           {/* Nama */}
@@ -691,6 +701,21 @@ export function ProfilePage() {
             </div>
             <ChevronRight className={`w-4 h-4 ${isDark ? "text-white/30" : "text-slate-400"}`} />
           </button>
+          <div className={divider} />
+          <details id="periode-gaji" ref={periodSettingsRef} className="group scroll-mt-4">
+            <summary className={`w-full flex items-center justify-between px-4 py-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden transition-colors ${rowHover}`}>
+              <div className="flex items-center gap-3">
+                <div className={iconBg}><CalendarDays className="w-4 h-4 dark:text-white" /></div>
+                <div className="text-left">
+                  <p className={labelClass}>Pengaturan</p>
+                  <p className={valueClass}>Periode Gaji</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{payday === null ? 'Belum diatur' : `Tanggal ${payday} setiap bulan`}</p>
+                </div>
+              </div>
+              <ChevronRight className={`w-4 h-4 transition-transform group-open:rotate-90 ${isDark ? 'text-white/30' : 'text-slate-400'}`} />
+            </summary>
+            <PaydaySettings embedded />
+          </details>
         </div>
 
         {/* Tampilan & Notifikasi */}

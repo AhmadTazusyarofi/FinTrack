@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CalendarDays } from 'lucide-react'
 import { usePayPeriod } from './PeriodProvider'
 
-export function PaydaySettings({ initial = false }: { initial?: boolean }) {
+export function PaydaySettings({ initial = false, embedded = false }: { initial?: boolean; embedded?: boolean }) {
   const { payday, save } = usePayPeriod()
   const [day, setDay] = useState<string>(payday == null ? '' : String(payday))
   const [saving, setSaving] = useState(false)
@@ -26,11 +26,11 @@ export function PaydaySettings({ initial = false }: { initial?: boolean }) {
   }
 
   return (
-    <form id="periode-gaji" onSubmit={submit} className="rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1a1f2e] p-5 space-y-4 text-brand-stroke dark:text-white">
-      <div className="flex items-center gap-3">
+    <form id={embedded ? undefined : 'periode-gaji'} onSubmit={submit} className={embedded ? 'px-4 pb-4 pt-1 space-y-4 text-brand-stroke dark:text-white' : 'rounded-3xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1a1f2e] p-5 space-y-4 text-brand-stroke dark:text-white'}>
+      {!embedded && <div className="flex items-center gap-3">
         <CalendarDays className="w-6 h-6 text-teal-600" />
         <h2 className="font-bold text-lg">{initial ? 'Pilih tanggal gajianmu' : 'Periode Gaji'}</h2>
-      </div>
+      </div>}
       <p className="text-sm text-slate-500 dark:text-slate-400">Cukup pilih tanggal gajian. Pemasukan, pengeluaran, dan anggaran akan otomatis dihitung mengikuti periode gajimu.</p>
       {payday === null && <p className="text-sm text-slate-500 dark:text-slate-400">Belum diatur. Kamu tetap bisa mencatat transaksi dengan periode mulai tanggal 1 sampai pilihanmu berhasil disimpan.</p>}
       <label className="block text-sm font-semibold" htmlFor="payday">Tanggal gajian setiap bulan</label>
