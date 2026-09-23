@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express'
+import periodRouter from './modules/periods/periods.routes'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
@@ -56,6 +57,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api/auth',         authRouter)
+app.use('/api/period',       periodRouter)
 app.use('/api/categories',   categoryRouter)
 app.use('/api/accounts',     accountRouter)
 app.use('/api/transactions', transactionRouter)

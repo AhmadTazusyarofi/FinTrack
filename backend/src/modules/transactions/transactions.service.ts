@@ -3,11 +3,21 @@ import {
   insertTransaction, updateTransactionRow, deleteTransactionRow,
   TransactionRow, TxFilter, TxMeta, TxData,
 } from './transactions.repository'
+import { resolvePeriod } from '../periods/periods.service'
+import { periodRange } from '../../utils/payPeriod'
 
 export async function getTransactions(
   userId: string, filter: TxFilter
 ): Promise<{ data: TransactionRow[]; meta: TxMeta }> {
-  return findTransactions(userId, filter)
+  let range: { start: string; end: string } | undefined
+  if (filter.month !== undefined || filter.year !== undefined) {
+    const period = await resolvePeriod(userId, filter.month, filter.year)
+    range = filter.month !== undefined ? period : {
+      start: periodRange(period.year, 1, period.day).start,
+      end: periodRange(period.year + 1, 1, period.day).start,
+    }
+  }
+  return findTransactions(userId, filter, range)
 }
 
 export async function addTransaction(userId: string, data: TxData): Promise<TransactionRow> {

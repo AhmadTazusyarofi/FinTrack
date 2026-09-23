@@ -27,6 +27,8 @@ export interface TxFilter {
 }
 
 export interface TxMeta {
+  totalIncome: string
+  totalExpense: string
   total: number
   page: number
   limit: number
@@ -44,20 +46,26 @@ const SELECT_TX = `
 
 export async function findTransactions(
   userId: string,
-  filter: TxFilter
+  filter: TxFilter,
+  period?: { start: string; end: string }
 ): Promise<{ data: TransactionRow[]; meta: TxMeta }> {
   const conds: string[] = ['t.user_id = ?']
   const params: unknown[] = [userId]
 
   if (filter.type)   { conds.push('t.type = ?');           params.push(filter.type) }
-  if (filter.month)  { conds.push('MONTH(t.date) = ?');    params.push(filter.month) }
-  if (filter.year)   { conds.push('YEAR(t.date) = ?');     params.push(filter.year) }
+  if (period) {
+    conds.push('t.date >= ? AND t.date < ?')
+    params.push(period.start, period.end)
+  }
   if (filter.search) { conds.push('t.note LIKE ?'); params.push(`%${filter.search}%`) }
 
   const where = conds.join(' AND ')
 
   const [countRows] = await pool.query<RowDataPacket[]>(
-    `SELECT COUNT(*) as total FROM transactions t WHERE ${where}`, params
+    `SELECT COUNT(*) as total,
+      CAST(COALESCE(SUM(CASE WHEN t.type='INCOME' THEN t.amount ELSE 0 END),0) AS CHAR) AS totalIncome,
+      CAST(COALESCE(SUM(CASE WHEN t.type='EXPENSE' THEN t.amount ELSE 0 END),0) AS CHAR) AS totalExpense
+     FROM transactions t WHERE ${where}`, params
   )
   const total = (countRows[0] as { total: number }).total
   const offset = (filter.page - 1) * filter.limit
@@ -69,7 +77,8 @@ export async function findTransactions(
 
   return {
     data: rows as TransactionRow[],
-    meta: { total, page: filter.page, limit: filter.limit, totalPages: Math.ceil(total / filter.limit) || 1 },
+    meta: { total, totalIncome: countRows[0].totalIncome, totalExpense: countRows[0].totalExpense,
+      page: filter.page, limit: filter.limit, totalPages: Math.ceil(total / filter.limit) || 1 },
   }
 }
 

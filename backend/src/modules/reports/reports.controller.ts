@@ -4,9 +4,8 @@ import { getReportSummary } from './reports.service'
 import { sendSuccess, sendError } from '../../utils/response'
 
 export async function getSummaryController(req: AuthRequest, res: Response): Promise<void> {
-  const now   = new Date()
-  const month = parseInt(req.query.month as string) || (now.getMonth() + 1)
-  const year  = parseInt(req.query.year  as string) || now.getFullYear()
+  const month = req.query.month === undefined ? undefined : Number(req.query.month)
+  const year = req.query.year === undefined ? undefined : Number(req.query.year)
   try {
     const summary = await getReportSummary(req.userId!, month, year)
     sendSuccess(res, summary)

@@ -13,7 +13,7 @@ export interface BudgetWithSpending {
 }
 
 export async function findBudgetsWithSpending(
-  userId: string, month: number, year: number
+  userId: string, month: number, year: number, period: { start: string; end: string }
 ): Promise<BudgetWithSpending[]> {
   const [rows] = await pool.query<RowDataPacket[]>(
     `SELECT b.id, b.category_id, c.name as category_name,
@@ -23,10 +23,10 @@ export async function findBudgetsWithSpending(
      LEFT JOIN categories c ON b.category_id = c.id
      LEFT JOIN transactions t
        ON t.category_id = b.category_id AND t.user_id = b.user_id
-       AND t.type = 'EXPENSE' AND MONTH(t.date) = b.month AND YEAR(t.date) = b.year
+       AND t.type = 'EXPENSE' AND t.date >= ? AND t.date < ?
      WHERE b.user_id = ? AND b.month = ? AND b.year = ?
      GROUP BY b.id, b.category_id, c.name, b.amount, b.month, b.year`,
-    [userId, month, year]
+    [period.start, period.end, userId, month, year]
   )
   return rows as BudgetWithSpending[]
 }

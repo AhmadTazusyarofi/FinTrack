@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "migrate:payday": "ts-node src/database/migrations/payday.ts",
+    "test:period": "node --test -r ts-node/register tests/payPeriod.test.cjs",
     "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/app.js",

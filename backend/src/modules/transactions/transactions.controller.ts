@@ -16,7 +16,7 @@ const txSchema = z.object({
 export async function getTransactionsController(req: AuthRequest, res: Response): Promise<void> {
   try {
     const page  = Math.max(1, parseInt(req.query.page  as string) || 1)
-    const limit = Math.min(100, parseInt(req.query.limit as string) || 10)
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit as string) || 10))
     const result = await getTransactions(req.userId!, {
       page, limit,
       type:   req.query.type   as 'INCOME' | 'EXPENSE' | undefined,

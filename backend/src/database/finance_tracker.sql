@@ -237,6 +237,7 @@ INSERT INTO `transactions` (`id`, `user_id`, `type`, `amount`, `category_id`, `a
 --
 
 CREATE TABLE `users` (
+  `payday` tinyint unsigned DEFAULT NULL,
   `id` char(36) NOT NULL,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
