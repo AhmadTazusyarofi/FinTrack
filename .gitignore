@@ -44,6 +44,8 @@ desktop.ini
 
 # Test coverage
 coverage/
+tmp/
+output/
 
 # Misc
 .superpowers/
